@@ -1,0 +1,23 @@
+trigger:
+- main   # change to master if your branch is master
+
+pool:
+  vmImage: 'windows-latest'
+
+steps:
+- powershell: |
+    choco upgrade googlechrome -y
+    choco upgrade chromedriver -y
+  displayName: "Install Chrome & ChromeDriver"
+
+- task: Maven@3
+  inputs:
+    mavenPomFile: 'pom.xml'
+    goals: 'clean test'
+    publishJUnitResults: true
+    testResultsFiles: '**/surefire-reports/*.xml'
+
+- task: PublishTestResults@2
+  inputs:
+    testResultsFiles: '**/surefire-reports/*.xml'
+    testRunTitle: 'Selenium Test Results'
