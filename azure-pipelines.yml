@@ -5,12 +5,13 @@ pool:
   vmImage: 'windows-latest'
 
 steps:
-# (Optional) Install Chrome & ChromeDriver – include later if needed
+# (Optional) Install Chrome & ChromeDriver
 # - powershell: |
 #     choco upgrade googlechrome -y
 #     choco upgrade chromedriver -y
 #   displayName: "Install Chrome & ChromeDriver"
 
+# Run Maven tests
 - task: Maven@3
   inputs:
     mavenPomFile: 'pom.xml'
@@ -18,7 +19,7 @@ steps:
     publishJUnitResults: true
     testResultsFiles: '**/surefire-reports/*.xml'
 
-# 🔥 Add this block directly below Maven task (This is your answer)
+# Publish TestNG results
 - task: PublishTestResults@2
   inputs:
     testResultsFormat: 'JUnit'
