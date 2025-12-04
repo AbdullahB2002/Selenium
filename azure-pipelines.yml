@@ -1,14 +1,15 @@
 trigger:
-- main   # change to master if your branch is master
+- main   # or master depending on your branch
 
 pool:
   vmImage: 'windows-latest'
 
 steps:
-- powershell: |
-    choco upgrade googlechrome -y
-    choco upgrade chromedriver -y
-  displayName: "Install Chrome & ChromeDriver"
+# (Optional) Install Chrome & ChromeDriver – include later if needed
+# - powershell: |
+#     choco upgrade googlechrome -y
+#     choco upgrade chromedriver -y
+#   displayName: "Install Chrome & ChromeDriver"
 
 - task: Maven@3
   inputs:
@@ -17,7 +18,10 @@ steps:
     publishJUnitResults: true
     testResultsFiles: '**/surefire-reports/*.xml'
 
+# 🔥 Add this block directly below Maven task (This is your answer)
 - task: PublishTestResults@2
   inputs:
-    testResultsFiles: '**/surefire-reports/*.xml'
-    testRunTitle: 'Selenium Test Results'
+    testResultsFormat: 'JUnit'
+    testResultsFiles: '**/test-output/testng-results.xml'
+    failTaskOnFailedTests: true
+    testRunTitle: 'TestNG Results'
