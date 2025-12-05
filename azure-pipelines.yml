@@ -1,10 +1,18 @@
 trigger:
-- main   # or master
+- main    # change to master if your repo uses master
 
 pool:
   vmImage: 'windows-latest'
 
 steps:
+
+# Install Chrome + ChromeDriver (Required for Selenium UI)
+- powershell: |
+    choco install googlechrome -y
+    choco install chromedriver -y
+  displayName: "Install Chrome & ChromeDriver"
+
+# Run Maven Tests
 - task: Maven@3
   inputs:
     mavenPomFile: 'pom.xml'
@@ -12,9 +20,12 @@ steps:
     publishJUnitResults: true
     testResultsFiles: '**/surefire-reports/*.xml'
 
+# Publish TestNG Results (so you can see reports inside Azure)
 - task: PublishTestResults@2
   inputs:
     testResultsFormat: 'JUnit'
     testResultsFiles: '**/test-output/testng-results.xml'
     failTaskOnFailedTests: true
     testRunTitle: 'TestNG Results'
+
+  
