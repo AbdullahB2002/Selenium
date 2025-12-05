@@ -1,31 +1,38 @@
 trigger:
-- main    # change to master if your repo uses master
+- master   # your branch is master 🟢
 
 pool:
-  vmImage: 'windows-latest'
+  vmImage: 'windows-latest'  # using windows agent for Selenium GUI
 
 steps:
 
-# Install Chrome + ChromeDriver (Required for Selenium UI)
+# Install Chrome & ChromeDriver
 - powershell: |
-    choco install googlechrome -y
-    choco install chromedriver -y
+    choco upgrade googlechrome -y
+    choco upgrade chromedriver -y
   displayName: "Install Chrome & ChromeDriver"
 
-# Run Maven Tests
+# Run Selenium with Maven + TestNG
 - task: Maven@3
   inputs:
     mavenPomFile: 'pom.xml'
     goals: 'clean test'
     publishJUnitResults: true
-    testResultsFiles: '**/surefire-reports/*.xml'
+    testResultsFiles: '**/test-output/testng-results.xml'
+  displayName: "Run Maven Test"
 
-# Publish TestNG Results (so you can see reports inside Azure)
+# Publish TestNG reports to Azure DevOps UI
 - task: PublishTestResults@2
   inputs:
-    testResultsFormat: 'JUnit'
     testResultsFiles: '**/test-output/testng-results.xml'
-    failTaskOnFailedTests: true
-    testRunTitle: 'TestNG Results'
+    testRunner: 'TestNG'
+  condition: succeededOrFailed()
+  displayName: "Publish TestNG Results"
 
-  
+# (optional) Publish HTML reports if you have Extent/Surefire reports
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathToPublish: 'test-output'
+    artifactName: 'Reports'
+  displayName: "Publish Reports Artifact"
+
